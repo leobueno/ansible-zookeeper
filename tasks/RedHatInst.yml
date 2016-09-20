@@ -1,18 +1,19 @@
-- name: Install OpenJDK
-  yum: name=java-1.7.0-openjdk state=present
-
-- name: Change ownership on monasca download directory.
-  file: path="{{monasca_download_dir}}" state=directory owner=zookeeper group=zookeeper recurse=yes
+- name: Change ownership on zookeeper download directory.
+  file: path="{{zookeeper_download_dir}}" state=directory owner=zookeeper group=zookeeper recurse=yes
 
 - name: Change ownership on zokeeper directory.
   file: path="{{zookeeper_dir}}" state=directory owner=zookeeper group=zookeeper recurse=yes
 
+- name: Find the closes apache mirror
+  shell: "curl 'https://www.apache.org/dyn/closer.cgi' |  grep -o '<strong>[^<]*</strong>' | sed 's/<[^>]*>//g' | head -1"
+  register: apache_mirror
+  changed_when: false
 
 - name: Download Zookeeper version
-  get_url: url={{zookeeper_url}} dest={{monasca_download_dir}}/zookeeper-{{zookeeper_version}}.tar.gz timeout=100
+  get_url: url=url="{{apache_mirror.stdout}}/zookeeper/zookeeper-{{zookeeper_version}}/zookeeper-{{zookeeper_version}}.tar.gz" dest={{zookeeper_download_dir}}/zookeeper-{{zookeeper_version}}.tar.gz
 
 - name: Unpack tarball
-  command: tar xzf {{monasca_download_dir}}/zookeeper-{{zookeeper_version}}.tar.gz --strip-components=1 chdir={{zookeeper_dir}} creates={{zookeeper_dir}}/bin
+  command: tar xzf {{zookeeper_download_dir}}/zookeeper-{{zookeeper_version}}.tar.gz --strip-components=1 chdir={{zookeeper_dir}} creates={{zookeeper_dir}}/bin
 
 - name: Setup Apache ZooKeeper service
   template: dest="/etc/systemd/system/zookeeper.service" src=zookeeper.service.j2

@@ -1,10 +1,10 @@
 ---
 galaxy_info:
-  author: Tim Kuhlman
+  author: Leonardo Bueno
   description: Installs zookeeper
-  company: HP
+  company: Infobase
   license: Apache
-  min_ansible_version: 1.2
+  min_ansible_version: 1.7
   platforms:
   - name: Ubuntu
     versions:
